@@ -25,6 +25,14 @@ Google の LiteRT-LM Gemma 4 ページでは、現時点で E2B/E4B が LiteRT-L
 
 モデルファイルは実行時にHugging Faceキャッシュへダウンロードします。リポジトリには入りません。
 
+## 動画で見る
+
+ローカル M1 Max のタスクマトリクスをもとに、30秒の HyperFrames 動画も入れています。
+
+[速度比較動画を見る](https://sunwood-ai-labs.github.io/gemma4-mtp-benchmark/assets/mtp-speed-comparison.mp4)
+
+E4B coding の `76.28s` 対 `40.79s` をバーで見せつつ、coding / JSON / extract では差が出やすく、creative や短い quick では横ばいまたは遅くなる場合がある、という傾向まで見えるようにしています。
+
 ## まず動かす
 
 Apple Silicon Mac なら `uv` 利用が一番ラクです。

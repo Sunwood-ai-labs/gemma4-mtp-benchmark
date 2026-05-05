@@ -1,5 +1,6 @@
 .DS_Store
 .venv/
+node_modules/
 __pycache__/
 *.py[cod]
 .pytest_cache/
@@ -21,3 +22,8 @@ results/*.md
 models/
 .cache/
 litert-cache/
+
+# HyperFrames local render caches and temporary dependencies.
+video/**/node_modules/
+video/**/.hyperframes/
+video/**/renders/

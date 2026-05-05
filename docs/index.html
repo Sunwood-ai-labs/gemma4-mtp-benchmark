@@ -100,6 +100,15 @@
         color: var(--accent-2);
         font-weight: 700;
       }
+
+      video {
+        display: block;
+        width: 100%;
+        margin: 18px 0 8px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #101418;
+      }
     </style>
   </head>
   <body>
@@ -117,6 +126,15 @@
           <a href="https://github.com/Sunwood-ai-labs/gemma4-mtp-benchmark/blob/main/README.ja.md">日本語 README</a>
         </p>
       </header>
+
+      <section>
+        <h2>Speed Difference Video</h2>
+        <p>
+          A 30-second HyperFrames render shows the E4B coding sprint and the wider task matrix,
+          making the MTP on/off difference easier to feel before running it locally.
+        </p>
+        <video src="assets/mtp-speed-comparison.mp4" controls preload="metadata"></video>
+      </section>
 
       <section>
         <h2>Quick Start</h2>

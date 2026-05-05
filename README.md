@@ -25,6 +25,14 @@ It measures:
 
 The model files are downloaded at runtime and are never committed to the repository.
 
+## Watch The Difference
+
+The repository includes a 30-second HyperFrames video built from the local M1 Max task matrix:
+
+[Watch the speed comparison video](https://sunwood-ai-labs.github.io/gemma4-mtp-benchmark/assets/mtp-speed-comparison.mp4)
+
+It highlights the visible E4B coding win (`76.28s` off versus `40.79s` on) and the broader task pattern: coding, JSON formatting, and extraction benefit most; creative and very short prompts may be flat or slower.
+
 ## Quick Start
 
 Apple Silicon Mac plus `uv` is the smoothest path:

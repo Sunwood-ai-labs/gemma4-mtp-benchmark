@@ -1,0 +1,550 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: #101418;
+        color: #edf2f7;
+        font-family: "Hiragino Sans", "Yu Gothic", sans-serif;
+      }
+
+      #root {
+        position: relative;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: #101418;
+      }
+
+      .scene {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: #101418;
+        opacity: 0;
+      }
+
+      .scene.is-visible {
+        opacity: 1;
+      }
+
+      .scene-content {
+        position: relative;
+        z-index: 3;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+        padding: 96px 128px;
+        gap: 34px;
+        box-sizing: border-box;
+      }
+
+      .grid {
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        opacity: 0.23;
+        background-image:
+          linear-gradient(rgba(174, 185, 197, 0.16) 1px, rgba(0, 0, 0, 0) 1px),
+          linear-gradient(90deg, rgba(174, 185, 197, 0.12) 1px, rgba(0, 0, 0, 0) 1px);
+        background-size: 96px 96px;
+      }
+
+      .glow {
+        position: absolute;
+        z-index: 1;
+        width: 680px;
+        height: 680px;
+        border-radius: 50%;
+        filter: blur(22px);
+        opacity: 0.18;
+        background: radial-gradient(circle, #33c9bd 0%, rgba(51, 201, 189, 0) 68%);
+      }
+
+      .glow.left {
+        left: -180px;
+        top: 80px;
+      }
+
+      .glow.right {
+        right: -220px;
+        bottom: -140px;
+        background: radial-gradient(circle, #fb923c 0%, rgba(251, 146, 60, 0) 70%);
+      }
+
+      .eyebrow {
+        color: #33c9bd;
+        font-family: "IBM Plex Mono", "SFMono-Regular", monospace;
+        font-size: 30px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+
+      h1,
+      h2 {
+        max-width: 1300px;
+        font-family: "Fraunces", Georgia, serif;
+        font-weight: 900;
+        line-height: 0.95;
+        letter-spacing: 0.01em;
+      }
+
+      h1 {
+        font-size: 126px;
+      }
+
+      h2 {
+        font-size: 94px;
+      }
+
+      .lead {
+        max-width: 1050px;
+        color: #cdd7e2;
+        font-size: 34px;
+        line-height: 1.42;
+      }
+
+      .mono {
+        font-family: "IBM Plex Mono", "SFMono-Regular", monospace;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .pill-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 18px;
+      }
+
+      .pill {
+        border: 1px solid #2a3440;
+        border-radius: 999px;
+        padding: 14px 22px;
+        color: #edf2f7;
+        background: rgba(23, 29, 36, 0.82);
+        font-size: 24px;
+      }
+
+      .race-layout {
+        display: grid;
+        grid-template-columns: 0.9fr 1.2fr;
+        align-items: center;
+        gap: 74px;
+      }
+
+      .race-layout > div:first-child {
+        display: flex;
+        flex-direction: column;
+        gap: 28px;
+      }
+
+      .stat-panel {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+        border: 1px solid #33c9bd;
+        border-radius: 8px;
+        padding: 34px;
+        background: #171d24;
+        box-shadow: inset 0 0 0 1px rgba(124, 231, 223, 0.18);
+      }
+
+      .stat-label {
+        color: #aeb9c5;
+        font-family: "IBM Plex Mono", "SFMono-Regular", monospace;
+        font-size: 24px;
+        border-radius: 4px;
+        background: #171d24;
+      }
+
+      .stat-value {
+        color: #7ce7df;
+        font-family: "IBM Plex Mono", "SFMono-Regular", monospace;
+        font-size: 84px;
+        font-weight: 800;
+        font-variant-numeric: tabular-nums;
+        line-height: 1.22;
+        border-radius: 4px;
+        background: #171d24;
+      }
+
+      .bar-stack {
+        display: flex;
+        flex-direction: column;
+        gap: 34px;
+      }
+
+      .bar-group {
+        display: grid;
+        grid-template-columns: 180px 1fr 140px;
+        align-items: center;
+        gap: 22px;
+      }
+
+      .bar-label,
+      .bar-value {
+        color: #edf2f7;
+        font-family: "IBM Plex Mono", "SFMono-Regular", monospace;
+        font-size: 30px;
+        font-weight: 700;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .bar-value {
+        text-align: right;
+      }
+
+      .track {
+        position: relative;
+        height: 54px;
+        overflow: hidden;
+        border: 1px solid #2a3440;
+        border-radius: 8px;
+        background: rgba(42, 52, 64, 0.72);
+      }
+
+      .fill {
+        position: absolute;
+        inset: 0;
+        transform-origin: left center;
+        border-radius: 6px;
+      }
+
+      .fill.baseline {
+        background: linear-gradient(90deg, #fb923c, #f6c85f);
+      }
+
+      .fill.mtp {
+        background: linear-gradient(90deg, #33c9bd, #7ce7df);
+      }
+
+      .matrix {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 22px 34px;
+        width: 100%;
+        max-width: 1380px;
+      }
+
+      .matrix-row {
+        display: grid;
+        grid-template-columns: 250px 1fr 110px;
+        align-items: center;
+        gap: 20px;
+        border: 1px solid #2a3440;
+        border-radius: 8px;
+        padding: 20px;
+        background: rgba(23, 29, 36, 0.85);
+      }
+
+      .task-name {
+        position: relative;
+        z-index: 2;
+        font-family: "IBM Plex Mono", "SFMono-Regular", monospace;
+        font-size: 26px;
+        color: #edf2f7;
+        border-radius: 4px;
+        padding: 6px 10px;
+        background: #171d24;
+      }
+
+      .ratio-track {
+        height: 28px;
+        overflow: hidden;
+        border-radius: 999px;
+        background: #2a3440;
+      }
+
+      .ratio-fill {
+        width: 100%;
+        height: 100%;
+        transform-origin: left center;
+        border-radius: 999px;
+        background: #33c9bd;
+      }
+
+      .ratio-fill.caution {
+        background: #f6c85f;
+      }
+
+      .ratio-fill.slower {
+        background: #fb923c;
+      }
+
+      .ratio-value {
+        text-align: right;
+        font-family: "IBM Plex Mono", "SFMono-Regular", monospace;
+        font-size: 28px;
+        font-weight: 800;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .split {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 40px;
+        max-width: 1360px;
+      }
+
+      .finding {
+        display: flex;
+        min-height: 220px;
+        flex-direction: column;
+        justify-content: space-between;
+        gap: 22px;
+        border: 1px solid #2a3440;
+        border-radius: 8px;
+        padding: 30px;
+        background: rgba(23, 29, 36, 0.9);
+      }
+
+      .finding strong {
+        color: #edf2f7;
+        font-family: "Fraunces", Georgia, serif;
+        font-size: 52px;
+        line-height: 1;
+      }
+
+      .finding span {
+        color: #aeb9c5;
+        font-size: 27px;
+        line-height: 1.35;
+      }
+
+      .command {
+        max-width: 1320px;
+        border: 1px solid #2a3440;
+        border-radius: 8px;
+        padding: 32px 38px;
+        color: #33c9bd;
+        background: #171d24;
+        font-family: "IBM Plex Mono", "SFMono-Regular", monospace;
+        font-size: 38px;
+        line-height: 1.35;
+        font-variant-ligatures: none;
+        box-shadow: 0 24px 90px rgba(0, 0, 0, 0.32);
+      }
+
+      .source {
+        color: #aeb9c5;
+        font-family: "IBM Plex Mono", "SFMono-Regular", monospace;
+        font-size: 24px;
+      }
+
+      .wipe {
+        position: absolute;
+        inset: 0;
+        z-index: 20;
+        opacity: 0;
+        transform: translateX(-105%);
+        background: linear-gradient(90deg, #33c9bd 0%, #edf2f7 48%, #fb923c 100%);
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-duration="30"
+      data-width="1920"
+      data-height="1080"
+    >
+      <div class="grid" data-layout-ignore></div>
+      <div class="glow left" data-layout-ignore></div>
+      <div class="glow right" data-layout-ignore></div>
+
+      <section id="scene-1" class="scene is-visible">
+        <div class="scene-content">
+          <div class="eyebrow">Gemma 4 LiteRT-LM local benchmark</div>
+          <h1>MTP is fast when the task is predictable.</h1>
+          <p class="lead">
+            Same Mac. Same prompt. Speculative decoding off versus on. The difference becomes
+            visible when the output has structure.
+          </p>
+          <div class="pill-row">
+            <div class="pill mono">MacBook Pro · M1 Max · 64 GB</div>
+            <div class="pill mono">E2B / E4B</div>
+            <div class="pill mono">GPU + CPU spot check</div>
+          </div>
+        </div>
+      </section>
+
+      <section id="scene-2" class="scene">
+        <div class="scene-content race-layout">
+          <div>
+            <div class="eyebrow">Best visible win</div>
+            <h2>E4B coding sprint</h2>
+            <p class="lead">Code generation moved from a long wait to a visibly shorter lap.</p>
+            <div class="stat-panel">
+              <div class="stat-label">estimated throughput gain</div>
+              <div class="stat-value">1.87x</div>
+            </div>
+          </div>
+          <div class="bar-stack">
+            <div class="bar-group">
+              <div class="bar-label">OFF</div>
+              <div class="track"><div class="fill baseline" id="coding-off"></div></div>
+              <div class="bar-value">76.28s</div>
+            </div>
+            <div class="bar-group">
+              <div class="bar-label">MTP</div>
+              <div class="track"><div class="fill mtp" id="coding-on"></div></div>
+              <div class="bar-value">40.79s</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="scene-3" class="scene">
+        <div class="scene-content">
+          <div class="eyebrow">Task matrix · E4B GPU</div>
+          <h2>Structured tasks pull ahead.</h2>
+          <div class="matrix">
+            <div class="matrix-row">
+              <div class="task-name">coding</div>
+              <div class="ratio-track"><div class="ratio-fill" style="transform: scaleX(0.94)"></div></div>
+              <div class="ratio-value">1.87x</div>
+            </div>
+            <div class="matrix-row">
+              <div class="task-name">json</div>
+              <div class="ratio-track"><div class="ratio-fill" style="transform: scaleX(0.83)"></div></div>
+              <div class="ratio-value">1.65x</div>
+            </div>
+            <div class="matrix-row">
+              <div class="task-name">extract</div>
+              <div class="ratio-track"><div class="ratio-fill" style="transform: scaleX(0.76)"></div></div>
+              <div class="ratio-value">1.51x</div>
+            </div>
+            <div class="matrix-row">
+              <div class="task-name">summarize</div>
+              <div class="ratio-track"><div class="ratio-fill caution" style="transform: scaleX(0.58)"></div></div>
+              <div class="ratio-value">1.15x</div>
+            </div>
+            <div class="matrix-row">
+              <div class="task-name">translation</div>
+              <div class="ratio-track"><div class="ratio-fill caution" style="transform: scaleX(0.52)"></div></div>
+              <div class="ratio-value">1.04x</div>
+            </div>
+            <div class="matrix-row">
+              <div class="task-name">creative</div>
+              <div class="ratio-track"><div class="ratio-fill slower" style="transform: scaleX(0.46)"></div></div>
+              <div class="ratio-value">0.91x</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="scene-4" class="scene">
+        <div class="scene-content">
+          <div class="eyebrow">What changed after trying more tasks?</div>
+          <h2>The story is not just “MTP on is faster.”</h2>
+          <div class="split">
+            <div class="finding">
+              <strong>Yes</strong>
+              <span>JSON formatting, log extraction, and coding are predictable enough to accept more draft tokens.</span>
+            </div>
+            <div class="finding">
+              <strong>Careful</strong>
+              <span>Short freeform and creative prompts can be flat or slower, especially in one-round local runs.</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="scene-5" class="scene">
+        <div class="scene-content">
+          <div class="eyebrow">Try the matrix locally</div>
+          <h2>Run the task set, then compare your Mac.</h2>
+          <div class="command">scripts/run-gpu-task-matrix.sh e4b gpu 1 1</div>
+          <p class="lead">
+            Repeat with higher rounds before treating a ratio as stable. This video uses a one-round
+            M1 Max snapshot so the pattern is easy to see.
+          </p>
+          <div class="source">github.com/Sunwood-ai-labs/gemma4-mtp-benchmark</div>
+        </div>
+      </section>
+
+      <div class="wipe" data-layout-ignore></div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+
+      const tl = gsap.timeline({ paused: true });
+      const wipe = ".wipe";
+      tl.set(wipe, { opacity: 0, xPercent: -105 }, 0);
+
+      function transitionAt(time, currentScene, nextScene) {
+        tl.set(wipe, { opacity: 1, xPercent: -105 }, time);
+        tl.to(wipe, { xPercent: 0, duration: 0.26, ease: "power4.in" }, time);
+        tl.set(nextScene, { opacity: 1 }, time + 0.27);
+        tl.set(currentScene, { opacity: 0 }, time + 0.27);
+        tl.to(wipe, { xPercent: 105, duration: 0.34, ease: "expo.out" }, time + 0.28);
+        tl.set(wipe, { opacity: 0, xPercent: -105 }, time + 0.63);
+      }
+
+      tl.from("#scene-1 .eyebrow", { y: 34, opacity: 0, duration: 0.42, ease: "power3.out" }, 0.2);
+      tl.from("#scene-1 h1", { y: 58, opacity: 0, scale: 0.98, duration: 0.72, ease: "expo.out" }, 0.42);
+      tl.from("#scene-1 .lead", { x: -46, opacity: 0, duration: 0.54, ease: "power2.out" }, 0.88);
+      tl.from("#scene-1 .pill", { y: 34, opacity: 0, scale: 0.94, duration: 0.46, stagger: 0.1, ease: "back.out(1.6)" }, 1.24);
+      tl.to(".glow.left", { scale: 1.12, x: 24, duration: 5, repeat: 5, yoyo: true, ease: "sine.inOut" }, 0);
+      tl.to(".glow.right", { scale: 1.08, y: -18, duration: 6, repeat: 4, yoyo: true, ease: "sine.inOut" }, 0);
+
+      transitionAt(5.4, "#scene-1", "#scene-2");
+
+      tl.from("#scene-2 .eyebrow", { x: -48, opacity: 0, duration: 0.42, ease: "power2.out" }, 6.05);
+      tl.from("#scene-2 h2", { y: 62, opacity: 0, duration: 0.64, ease: "expo.out" }, 6.24);
+      tl.from("#scene-2 .lead", { y: 34, opacity: 0, duration: 0.42, ease: "power3.out" }, 6.58);
+      tl.from("#scene-2 .stat-panel", { scale: 0.94, opacity: 0, duration: 0.46, ease: "back.out(1.5)" }, 7.1);
+      tl.from("#scene-2 .bar-label", { x: -28, opacity: 0, duration: 0.34, stagger: 0.12, ease: "power3.out" }, 7.18);
+      tl.from("#coding-off", { scaleX: 0, duration: 1.05, ease: "power2.out" }, 7.38);
+      tl.from("#coding-on", { scaleX: 0, duration: 0.62, ease: "power4.out" }, 7.5);
+      tl.from("#scene-2 .bar-value", { x: 28, opacity: 0, duration: 0.36, stagger: 0.1, ease: "sine.out" }, 7.8);
+
+      transitionAt(11.3, "#scene-2", "#scene-3");
+
+      tl.from("#scene-3 .eyebrow", { y: 36, opacity: 0, duration: 0.38, ease: "power2.out" }, 12.0);
+      tl.from("#scene-3 h2", { x: -54, opacity: 0, duration: 0.62, ease: "expo.out" }, 12.18);
+      tl.from("#scene-3 .matrix-row", { y: 36, opacity: 0, scale: 0.98, duration: 0.48, stagger: 0.08, ease: "back.out(1.35)" }, 12.62);
+      tl.from("#scene-3 .ratio-fill", { scaleX: 0, duration: 0.72, stagger: 0.08, ease: "power4.out" }, 12.78);
+      tl.from("#scene-3 .ratio-value", { x: 18, opacity: 0, duration: 0.32, stagger: 0.08, ease: "sine.out" }, 13.0);
+
+      transitionAt(17.1, "#scene-3", "#scene-4");
+
+      tl.from("#scene-4 .eyebrow", { x: -42, opacity: 0, duration: 0.38, ease: "power3.out" }, 17.78);
+      tl.from("#scene-4 h2", { y: 56, opacity: 0, duration: 0.62, ease: "expo.out" }, 17.98);
+      tl.from("#scene-4 .finding", { y: 44, opacity: 0, scale: 0.96, duration: 0.5, stagger: 0.16, ease: "back.out(1.5)" }, 18.54);
+      tl.from("#scene-4 .finding strong", { y: 30, opacity: 0, duration: 0.38, stagger: 0.14, ease: "power4.out" }, 18.8);
+      tl.from("#scene-4 .finding span", { x: -20, opacity: 0, duration: 0.42, stagger: 0.12, ease: "sine.out" }, 19.02);
+
+      transitionAt(23.0, "#scene-4", "#scene-5");
+
+      tl.from("#scene-5 .eyebrow", { y: 36, opacity: 0, duration: 0.38, ease: "power2.out" }, 23.72);
+      tl.from("#scene-5 h2", { y: 62, opacity: 0, duration: 0.66, ease: "expo.out" }, 23.94);
+      tl.from("#scene-5 .command", { scale: 0.96, opacity: 0, y: 34, duration: 0.54, ease: "back.out(1.4)" }, 24.52);
+      tl.from("#scene-5 .lead", { x: -34, opacity: 0, duration: 0.44, ease: "power3.out" }, 25.02);
+      tl.from("#scene-5 .source", { y: 24, opacity: 0, duration: 0.38, ease: "sine.out" }, 25.42);
+      tl.to("#scene-5 .scene-content", { opacity: 0, y: -20, duration: 0.64, ease: "power2.in" }, 29.15);
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>
