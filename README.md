@@ -61,6 +61,16 @@ uv run gemma4-mtp-bench run \
 
 In the repository creation smoke test on a MacBook Pro M1 Max with 64 GB memory, the E4B GPU coding prompt set measured about `1.87x` estimated tokens/sec with MTP enabled. The short E2B quick prompt was slower with MTP in that one run, so treat `quick` as a smoke test and use `coding` or `summarize` to feel the difference. See [the local benchmark note](benchmarks/2026-05-06-m1-max.md).
 
+A broader one-round task matrix on the same M1 Max showed the clearest MTP wins on predictable tasks:
+
+- E4B GPU `coding`: `1.87x`
+- E4B GPU `json`: `1.65x`
+- E4B GPU `extract`: `1.51x`
+- E2B GPU `json`: `1.53x`
+- E2B CPU `json`: `1.81x`
+
+Open-ended `creative` and very short `quick` prompts were flat or slower. See [the task matrix note](benchmarks/2026-05-06-task-matrix-m1-max.md).
+
 Render a Markdown report:
 
 ```bash
@@ -83,6 +93,17 @@ Prompt sets:
 - `quick`: short Japanese explanation
 - `coding`: Python code generation prompts, usually good for feeling MTP
 - `summarize`: constrained summarization
+- `rewrite`: README-style rewriting
+- `extract`: structured extraction from logs
+- `json`: strict JSON formatting
+- `translation`: technical English-to-Japanese translation
+- `creative`: short open-ended introduction
+
+Run a broader task matrix:
+
+```bash
+scripts/run-gpu-task-matrix.sh e4b gpu 1 1
+```
 
 ## Commands
 

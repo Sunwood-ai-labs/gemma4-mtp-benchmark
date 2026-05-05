@@ -61,6 +61,16 @@ uv run gemma4-mtp-bench run \
 
 このリポジトリ作成時に MacBook Pro M1 Max / 64 GB で実測したところ、E4B GPU のコード生成では MTP ありがおよそ `1.87x` の推定 tokens/sec になりました。一方、短いE2B quickプロンプトではこの1回の実測だとMTPありのほうが遅く出たため、`quick` は動作確認用、体感比較は `coding` または `summarize` がおすすめです。詳細は [local benchmark note](benchmarks/2026-05-06-m1-max.md) に残しています。
 
+同じ M1 Max で複数タスクを1回ずつ回したところ、MTPの差が出やすいのは予測しやすいタスクでした。
+
+- E4B GPU `coding`: `1.87x`
+- E4B GPU `json`: `1.65x`
+- E4B GPU `extract`: `1.51x`
+- E2B GPU `json`: `1.53x`
+- E2B CPU `json`: `1.81x`
+
+逆に、自由度が高い `creative` や短い `quick` は横ばいか遅めでした。詳細は [task matrix note](benchmarks/2026-05-06-task-matrix-m1-max.md) に残しています。
+
 結果をMarkdownにします。
 
 ```bash
@@ -83,6 +93,17 @@ uv run gemma4-mtp-bench report \
 - `quick`: 短い日本語説明
 - `coding`: Pythonコード生成。MTP差を見やすいです
 - `summarize`: 要約タスク
+- `rewrite`: README向けのリライト
+- `extract`: ログからの構造化抽出
+- `json`: JSON形式への整形
+- `translation`: 技術文の英日翻訳
+- `creative`: 短い自由導入文
+
+複数タスクをまとめて試す:
+
+```bash
+scripts/run-gpu-task-matrix.sh e4b gpu 1 1
+```
 
 ## 結果の見方
 

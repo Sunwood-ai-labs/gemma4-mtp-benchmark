@@ -140,6 +140,19 @@ uv run gemma4-mtp-bench run --model e2b --backend gpu --prompt-set quick</code><
           <strong>MTP Compare</strong>
           <p>Runs the same prompt set with speculative decoding off and on.</p>
         </div>
+        <div class="card">
+          <strong>Task Matrix</strong>
+          <p>Compare coding, JSON formatting, extraction, rewriting, translation, and creative prompts.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>Local M1 Max Snapshot</h2>
+        <p>
+          In a one-round local run, predictable tasks showed the clearest gains: E4B GPU coding
+          reached about 1.87x, JSON formatting about 1.65x, and log extraction about 1.51x.
+          Creative and very short prompts were flat or slower.
+        </p>
       </section>
     </main>
   </body>
