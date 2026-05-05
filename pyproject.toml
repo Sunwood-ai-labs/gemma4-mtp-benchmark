@@ -1,0 +1,56 @@
+[project]
+name = "gemma4-mtp-benchmark"
+version = "0.1.0"
+description = "A small reproducible benchmark for feeling Gemma 4 MTP on Apple Silicon Macs."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "Apache-2.0" }
+authors = [
+  { name = "Sunwood-ai-labs" }
+]
+keywords = ["gemma", "litert-lm", "mtp", "speculative-decoding", "apple-silicon", "benchmark"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: Apache Software License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+  "huggingface-hub>=0.24",
+]
+
+[project.optional-dependencies]
+bench = [
+  "litert-lm-api-nightly",
+]
+dev = [
+  "ruff>=0.5",
+]
+
+[project.urls]
+Homepage = "https://github.com/Sunwood-ai-labs/gemma4-mtp-benchmark"
+Repository = "https://github.com/Sunwood-ai-labs/gemma4-mtp-benchmark"
+Documentation = "https://sunwood-ai-labs.github.io/gemma4-mtp-benchmark/"
+
+[project.scripts]
+gemma4-mtp-bench = "gemma4_mtp_benchmark.cli:main"
+
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/gemma4_mtp_benchmark"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+ignore = ["UP006", "UP007", "UP045"]

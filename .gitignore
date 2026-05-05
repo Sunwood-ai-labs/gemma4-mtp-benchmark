@@ -1,0 +1,23 @@
+.DS_Store
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+dist/
+build/
+*.egg-info/
+default.profraw
+
+# Keep benchmark outputs opt-in. Commit hand-picked examples only.
+results/*.json
+results/*.md
+!results/.gitkeep
+!results/example-dry-run.json
+
+# Model files and caches must stay outside git.
+*.litertlm
+models/
+.cache/
+litert-cache/
