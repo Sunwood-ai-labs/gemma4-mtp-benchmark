@@ -127,6 +127,8 @@ scripts/run-dflash-mlx.sh
 
 The Gemma 4 31B target plus DFlash draft is roughly 20 GiB of model downloads. See [the DFlash MLX comparison note](benchmarks/2026-05-06-dflash-mlx-m1-max.md).
 
+In a short local M1 Max smoke, the Gemma 4 31B DFlash path ran but did not speed up: `12.10 tok/s` baseline versus `11.38 tok/s` DFlash (`0.94x`). Start with the Qwen3.5-4B DFlash lane if you mainly want to feel DFlash working.
+
 Render a Markdown report:
 
 ```bash

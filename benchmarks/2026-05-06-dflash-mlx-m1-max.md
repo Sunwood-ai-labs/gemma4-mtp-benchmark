@@ -80,7 +80,33 @@ Hugging Face model metadata on 2026-05-06:
 | `mlx-community/gemma-4-31b-it-4bit` | 17.18 GiB |
 | `z-lab/gemma-4-31B-it-DFlash` | 2.86 GiB |
 
-Use the Qwen3.5-4B lane for a practical first run. Try the Gemma 4 31B lane only when you are comfortable downloading roughly 20 GiB of additional model files and spending more time loading the model.
+Use the Qwen3.5-4B lane for a practical first run. The Gemma 4 31B lane downloads roughly 20 GiB of additional model files and takes noticeably longer to load.
+
+## Gemma 4 31B DFlash smoke
+
+Command:
+
+```bash
+DFLASH_MODEL=mlx-community/gemma-4-31b-it-4bit \
+DFLASH_DRAFT_MODEL=z-lab/gemma-4-31B-it-DFlash \
+DFLASH_ENABLE_THINKING=1 \
+DFLASH_MAX_SAMPLES=4 \
+DFLASH_MAX_NEW_TOKENS=128 \
+scripts/run-dflash-mlx.sh
+```
+
+Result:
+
+| Metric | Value |
+| --- | ---: |
+| Baseline throughput | 12.10 tok/s |
+| DFlash throughput | 11.38 tok/s |
+| Decoding speedup | 0.94x |
+| Average acceptance length | 7.03 |
+
+A smaller first smoke with `--max-samples 1 --max-new-tokens 64` produced `11.51 tok/s` baseline, `8.91 tok/s` DFlash, and `0.77x` speedup.
+
+This confirms the Gemma 4 31B DFlash path runs on this M1 Max, but this short local setup did not show a speedup. The upstream DFlash README's MLX benchmark example uses more samples, and the README says their MLX testing covered Apple M5 Pro hardware. Treat this M1 Max 31B result as a runnable smoke result, not a final performance claim.
 
 ## Reproduce from this repository
 

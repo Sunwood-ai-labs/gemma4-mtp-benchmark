@@ -127,6 +127,8 @@ scripts/run-dflash-mlx.sh
 
 Gemma 4 31B の target と DFlash draft は合計で約20GiBのモデルダウンロードになります。詳細は [DFlash MLX comparison note](benchmarks/2026-05-06-dflash-mlx-m1-max.md) に残しました。
 
+この M1 Max の短い smoke では、Gemma 4 31B DFlash は動作しましたが高速化は出ませんでした。`12.10 tok/s` baseline に対して DFlash は `11.38 tok/s`、`0.94x` です。まず DFlash の差を体感したい場合は、Qwen3.5-4B の DFlash レーンから試すのがおすすめです。
+
 結果をMarkdownにします。
 
 ```bash

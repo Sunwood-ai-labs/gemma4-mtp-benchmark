@@ -185,7 +185,8 @@ uv run gemma4-mtp-bench chat --model e4b --backend gpu --mode compare</code></pr
         <p>
           The repo now includes a separate MLX lane for z-lab/dflash. On the same M1 Max,
           Qwen3.5-4B with its DFlash draft reached 44.28 tok/s versus 28.31 tok/s baseline
-          on an 8-sample gsm8k smoke test.
+          on an 8-sample gsm8k smoke test. The heavier Gemma 4 31B smoke ran too, but was
+          flat on this machine: 11.38 tok/s DFlash versus 12.10 tok/s baseline.
         </p>
         <pre><code>scripts/run-dflash-mlx.sh</code></pre>
       </section>
