@@ -192,6 +192,17 @@ uv run gemma4-mtp-bench chat --model e4b --backend gpu --mode compare</code></pr
         </p>
         <pre><code>scripts/run-dflash-mlx.sh</code></pre>
       </section>
+
+      <section>
+        <h2>DFlash Contrast</h2>
+        <p>
+          A focused Qwen3.5-4B prompt experiment makes the mechanism visible: predictable
+          math reached 1.86x with mean accepted length 6.59, structured JSON reached 1.44x
+          with 5.14 accepted, and open-ended creative writing slowed to 0.93x with 3.62
+          accepted.
+        </p>
+        <pre><code>scripts/run-dflash-contrast.sh</code></pre>
+      </section>
     </main>
   </body>
 </html>

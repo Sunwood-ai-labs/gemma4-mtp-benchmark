@@ -131,6 +131,14 @@ In a short local M1 Max smoke, the Gemma 4 31B DFlash path ran but did not speed
 
 I also checked longer `mt-bench` generation with `--max-new-tokens 512`. On this M1 Max, longer did not help Gemma 4 31B: baseline was `8.87 tok/s`, DFlash was `4.87 tok/s` (`0.55x`). Qwen3.5-4B was basically flat on the same longer setup: `23.13 tok/s` baseline versus `22.51 tok/s` DFlash (`0.97x`).
 
+To see why DFlash changes by task, run the contrast experiment:
+
+```bash
+scripts/run-dflash-contrast.sh
+```
+
+It keeps the model fixed and varies only the prompt style. On this M1 Max, Qwen3.5-4B DFlash measured `1.86x` on a predictable math prompt, `1.44x` on structured JSON, and `0.93x` on open-ended creative writing. The visible driver was mean accepted draft length: `6.59`, `5.14`, then `3.62`. See [the DFlash contrast note](benchmarks/2026-05-06-dflash-contrast-m1-max.md).
+
 Render a Markdown report:
 
 ```bash
