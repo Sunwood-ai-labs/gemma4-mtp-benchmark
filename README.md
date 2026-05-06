@@ -129,6 +129,8 @@ The Gemma 4 31B target plus DFlash draft is roughly 20 GiB of model downloads. S
 
 In a short local M1 Max smoke, the Gemma 4 31B DFlash path ran but did not speed up: `12.10 tok/s` baseline versus `11.38 tok/s` DFlash (`0.94x`). Start with the Qwen3.5-4B DFlash lane if you mainly want to feel DFlash working.
 
+I also checked longer `mt-bench` generation with `--max-new-tokens 512`. On this M1 Max, longer did not help Gemma 4 31B: baseline was `8.87 tok/s`, DFlash was `4.87 tok/s` (`0.55x`). Qwen3.5-4B was basically flat on the same longer setup: `23.13 tok/s` baseline versus `22.51 tok/s` DFlash (`0.97x`).
+
 Render a Markdown report:
 
 ```bash

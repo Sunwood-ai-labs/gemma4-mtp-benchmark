@@ -108,6 +108,47 @@ A smaller first smoke with `--max-samples 1 --max-new-tokens 64` produced `11.51
 
 This confirms the Gemma 4 31B DFlash path runs on this M1 Max, but this short local setup did not show a speedup. The upstream DFlash README's MLX benchmark example uses more samples, and the README says their MLX testing covered Apple M5 Pro hardware. Treat this M1 Max 31B result as a runnable smoke result, not a final performance claim.
 
+## Longer mt-bench check
+
+The short Gemma 4 31B smoke could have been too short for DFlash to amortize its draft overhead, so I also ran longer `mt-bench` checks with `--max-new-tokens 512`.
+
+Gemma 4 31B:
+
+```bash
+DFLASH_MODEL=mlx-community/gemma-4-31b-it-4bit \
+DFLASH_DRAFT_MODEL=z-lab/gemma-4-31B-it-DFlash \
+DFLASH_ENABLE_THINKING=1 \
+DFLASH_DATASET=mt-bench \
+DFLASH_MAX_SAMPLES=2 \
+DFLASH_MAX_NEW_TOKENS=512 \
+scripts/run-dflash-mlx.sh
+```
+
+| Metric | Value |
+| --- | ---: |
+| Baseline throughput | 8.87 tok/s |
+| DFlash throughput | 4.87 tok/s |
+| Decoding speedup | 0.55x |
+| Average acceptance length | 4.63 |
+
+Qwen3.5-4B:
+
+```bash
+DFLASH_DATASET=mt-bench \
+DFLASH_MAX_SAMPLES=4 \
+DFLASH_MAX_NEW_TOKENS=512 \
+scripts/run-dflash-mlx.sh
+```
+
+| Metric | Value |
+| --- | ---: |
+| Baseline throughput | 23.13 tok/s |
+| DFlash throughput | 22.51 tok/s |
+| Decoding speedup | 0.97x |
+| Average acceptance length | 4.89 |
+
+For this Mac and this MLX path, making the task longer did not make Gemma 4 31B DFlash faster. It made the gap worse on `mt-bench`. The Qwen3.5-4B DFlash lane still showed a useful speedup on the shorter, predictable `gsm8k` smoke, but it was essentially flat on longer open-ended `mt-bench`.
+
 ## Reproduce from this repository
 
 Default DFlash smoke:
