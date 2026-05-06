@@ -95,6 +95,38 @@ A broader one-round task matrix on the same M1 Max showed the clearest MTP wins 
 
 Open-ended `creative` and very short `quick` prompts were flat or slower. See [the task matrix note](benchmarks/2026-05-06-task-matrix-m1-max.md).
 
+## DFlash Comparison Lane
+
+[z-lab/dflash](https://github.com/z-lab/dflash) is a separate speculative decoding project with an MLX backend for Apple Silicon. It does not target the LiteRT-LM E2B/E4B files, so this repository treats it as a comparison lane rather than a direct replacement.
+
+Run the practical DFlash smoke test:
+
+```bash
+scripts/run-dflash-mlx.sh
+```
+
+By default, that clones or reuses `../dflash`, installs DFlash with `.[mlx]`, and benchmarks `Qwen/Qwen3.5-4B` against `z-lab/Qwen3.5-4B-DFlash` on `gsm8k`.
+
+On the same M1 Max used above, the cached 8-sample DFlash MLX smoke measured:
+
+| Lane | Baseline | Speculative | Speed ratio |
+| --- | ---: | ---: | ---: |
+| LiteRT-LM E4B GPU `json` | 21.5 est tok/s | 35.6 est tok/s | 1.65x |
+| DFlash MLX Qwen3.5-4B `gsm8k` | 28.31 tok/s | 44.28 tok/s | 1.56x |
+
+To try the heavier Gemma 4 31B DFlash path:
+
+```bash
+DFLASH_MODEL=mlx-community/gemma-4-31b-it-4bit \
+DFLASH_DRAFT_MODEL=z-lab/gemma-4-31B-it-DFlash \
+DFLASH_ENABLE_THINKING=1 \
+DFLASH_MAX_SAMPLES=4 \
+DFLASH_MAX_NEW_TOKENS=128 \
+scripts/run-dflash-mlx.sh
+```
+
+The Gemma 4 31B target plus DFlash draft is roughly 20 GiB of model downloads. See [the DFlash MLX comparison note](benchmarks/2026-05-06-dflash-mlx-m1-max.md).
+
 Render a Markdown report:
 
 ```bash
@@ -179,6 +211,9 @@ If you downloaded LiteRT Gemma 4 models before 2026-05-05 and want speculative d
 - [Google AI Edge: LiteRT-LM Python API](https://ai.google.dev/edge/litert-lm/python)
 - [Hugging Face: Gemma 4 E2B LiteRT-LM](https://huggingface.co/litert-community/gemma-4-E2B-it-litert-lm)
 - [Hugging Face: Gemma 4 E4B LiteRT-LM](https://huggingface.co/litert-community/gemma-4-E4B-it-litert-lm)
+- [z-lab/dflash](https://github.com/z-lab/dflash)
+- [Hugging Face: Qwen3.5-4B DFlash](https://huggingface.co/z-lab/Qwen3.5-4B-DFlash)
+- [Hugging Face: Gemma 4 31B DFlash](https://huggingface.co/z-lab/gemma-4-31B-it-DFlash)
 
 ## License
 

@@ -95,6 +95,38 @@ uv run gemma4-mtp-bench run \
 
 逆に、自由度が高い `creative` や短い `quick` は横ばいか遅めでした。詳細は [task matrix note](benchmarks/2026-05-06-task-matrix-m1-max.md) に残しています。
 
+## DFlash 比較レーン
+
+[z-lab/dflash](https://github.com/z-lab/dflash) は、LiteRT-LM とは別の speculative decoding プロジェクトです。Apple Silicon 向けには MLX バックエンドがあります。ただし LiteRT-LM の E2B/E4B ファイルをそのまま高速化するものではないため、このリポジトリでは「別方式の比較レーン」として扱います。
+
+実用的な DFlash smoke test:
+
+```bash
+scripts/run-dflash-mlx.sh
+```
+
+デフォルトでは `../dflash` を clone または再利用し、DFlash を `.[mlx]` 付きで入れて、`Qwen/Qwen3.5-4B` と `z-lab/Qwen3.5-4B-DFlash` を `gsm8k` で測ります。
+
+同じ M1 Max でのキャッシュ済み8サンプル実測:
+
+| レーン | baseline | speculative | 速度比 |
+| --- | ---: | ---: | ---: |
+| LiteRT-LM E4B GPU `json` | 21.5 est tok/s | 35.6 est tok/s | 1.65x |
+| DFlash MLX Qwen3.5-4B `gsm8k` | 28.31 tok/s | 44.28 tok/s | 1.56x |
+
+重い Gemma 4 31B DFlash も同じスクリプトで試せます。
+
+```bash
+DFLASH_MODEL=mlx-community/gemma-4-31b-it-4bit \
+DFLASH_DRAFT_MODEL=z-lab/gemma-4-31B-it-DFlash \
+DFLASH_ENABLE_THINKING=1 \
+DFLASH_MAX_SAMPLES=4 \
+DFLASH_MAX_NEW_TOKENS=128 \
+scripts/run-dflash-mlx.sh
+```
+
+Gemma 4 31B の target と DFlash draft は合計で約20GiBのモデルダウンロードになります。詳細は [DFlash MLX comparison note](benchmarks/2026-05-06-dflash-mlx-m1-max.md) に残しました。
+
 結果をMarkdownにします。
 
 ```bash
@@ -163,6 +195,9 @@ LiteRT/WebGPU がアダプタやカーネル初期化の低レベルログを表
 - [Google AI Edge: LiteRT-LM Python API](https://ai.google.dev/edge/litert-lm/python)
 - [Hugging Face: Gemma 4 E2B LiteRT-LM](https://huggingface.co/litert-community/gemma-4-E2B-it-litert-lm)
 - [Hugging Face: Gemma 4 E4B LiteRT-LM](https://huggingface.co/litert-community/gemma-4-E4B-it-litert-lm)
+- [z-lab/dflash](https://github.com/z-lab/dflash)
+- [Hugging Face: Qwen3.5-4B DFlash](https://huggingface.co/z-lab/Qwen3.5-4B-DFlash)
+- [Hugging Face: Gemma 4 31B DFlash](https://huggingface.co/z-lab/gemma-4-31B-it-DFlash)
 
 ## ライセンス
 

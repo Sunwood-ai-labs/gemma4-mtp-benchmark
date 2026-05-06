@@ -14,6 +14,7 @@ default.profraw
 # Keep benchmark outputs opt-in. Commit hand-picked examples only.
 results/*.json
 results/*.md
+results/**/*.log
 !results/.gitkeep
 !results/example-dry-run.json
 
