@@ -441,6 +441,87 @@
         line-height: 1.34;
       }
 
+      .explain-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 28px;
+      }
+
+      .concept-card {
+        min-height: 314px;
+        padding: 28px;
+        border: 1px solid #2a3440;
+        border-radius: 8px;
+        background: rgba(23, 29, 36, 0.92);
+      }
+
+      .concept-kicker {
+        color: #33c9bd;
+        font-family: "IBM Plex Mono", "SFMono-Regular", monospace;
+        font-size: 22px;
+        font-weight: 900;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .concept-title {
+        margin-top: 12px;
+        color: #edf2f7;
+        font-size: 38px;
+        font-weight: 900;
+        line-height: 1.12;
+      }
+
+      .concept-text {
+        margin-top: 18px;
+        color: #cdd7e2;
+        font-size: 28px;
+        line-height: 1.38;
+      }
+
+      .mini-formula {
+        padding: 22px 26px;
+        border: 1px solid #2a3440;
+        border-radius: 8px;
+        background: rgba(11, 15, 19, 0.9);
+        color: #edf2f7;
+        font-family: "IBM Plex Mono", "SFMono-Regular", monospace;
+        font-size: 30px;
+        line-height: 1.28;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .evidence-strip {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+      }
+
+      .evidence-cell {
+        padding: 18px 20px;
+        border: 1px solid #2a3440;
+        border-radius: 8px;
+        background: rgba(11, 15, 19, 0.72);
+        font-family: "IBM Plex Mono", "SFMono-Regular", monospace;
+      }
+
+      .evidence-cell .label {
+        color: #aeb9c5;
+        font-size: 18px;
+        font-weight: 800;
+      }
+
+      .evidence-cell .value {
+        margin-top: 8px;
+        color: #7ce7df;
+        font-size: 34px;
+        font-weight: 900;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .evidence-cell .value.bad {
+        color: #fb923c;
+      }
+
       .contrast-cards {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
@@ -558,7 +639,7 @@
         id="root"
         data-composition-id="main"
         data-start="0"
-        data-duration="55"
+        data-duration="60"
         data-width="1920"
         data-height="1080"
       >
@@ -685,7 +766,48 @@
       <section id="slide-05" class="slide">
         <div class="content">
           <div class="topline">
-            <span>04 / GEMMA 4 LITERT-LM</span>
+            <span>04 / SPEED FACTORS</span>
+            <span>受理率 × 実行系</span>
+          </div>
+          <h2 class="wide-title">速度差は、受理率と実行系の掛け算で決まる。</h2>
+          <div class="explain-grid">
+            <div class="concept-card">
+              <div class="concept-kicker">ACCEPTED DRAFT LENGTH</div>
+              <div class="concept-title">受理率: 先読みがどれだけ採用されたか</div>
+              <div class="concept-text">
+                draft が出した候補 token のうち、target が先頭から連続して採用できた平均数。高いほど 1 回の検証で多く進み、target 実行回数を減らせる。
+              </div>
+            </div>
+            <div class="concept-card">
+              <div class="concept-kicker">BACKEND / RUNTIME</div>
+              <div class="concept-title">実行系: 追加処理をどれだけ安く回せるか</div>
+              <div class="concept-text">
+                LiteRT-LM GPU、MLX、CPU、vLLM/SGLang などの実装とハードの組み合わせ。draft、verify、同期、メモリ移動のコストがここで変わる。
+              </div>
+            </div>
+          </div>
+          <div class="mini-formula">net speedup = saved target work - (draft + verify + sync / rollback)</div>
+          <div class="evidence-strip">
+            <div class="evidence-cell">
+              <div class="label">Qwen math_step</div>
+              <div class="value">accepted 6.59 → 1.86x</div>
+            </div>
+            <div class="evidence-cell">
+              <div class="label">Qwen creative_open</div>
+              <div class="value bad">accepted 3.62 → 0.93x</div>
+            </div>
+            <div class="evidence-cell">
+              <div class="label">Gemma 31B + MLX</div>
+              <div class="value bad">accepted 4.63 → 0.55x</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="slide-06" class="slide">
+        <div class="content">
+          <div class="topline">
+            <span>05 / GEMMA 4 LITERT-LM</span>
             <span>MTP on/off 実測</span>
           </div>
           <h2>Gemma 4 E4B は、構造化タスクでわかりやすく速い。</h2>
@@ -727,10 +849,10 @@
         </div>
       </section>
 
-      <section id="slide-06" class="slide">
+      <section id="slide-07" class="slide">
         <div class="content">
           <div class="topline">
-            <span>05 / DFLASH CONTRAST</span>
+            <span>06 / DFLASH CONTRAST</span>
             <span>同じモデルでプロンプトだけ変える</span>
           </div>
           <h2>DFlash は “何を書くか” で速度が変わる。</h2>
@@ -774,10 +896,10 @@
         </div>
       </section>
 
-      <section id="slide-07" class="slide">
+      <section id="slide-08" class="slide">
         <div class="content">
           <div class="topline">
-            <span>06 / DFLASH CONTRAST DETAIL</span>
+            <span>07 / DFLASH CONTRAST DETAIL</span>
             <span>Qwen3.5-4B · prompt-only comparison</span>
           </div>
           <h2 class="wide-title">何が効いて、何が効かないかが見える実験。</h2>
@@ -839,10 +961,10 @@
         </div>
       </section>
 
-      <section id="slide-08" class="slide">
+      <section id="slide-09" class="slide">
         <div class="content">
           <div class="topline">
-            <span>07 / LONG MT-BENCH</span>
+            <span>08 / LONG MT-BENCH</span>
             <span>max_new_tokens=512</span>
           </div>
           <h2 class="wide-title">長文でも、<br />DFlash はこの条件では速くならなかった。</h2>
@@ -886,10 +1008,10 @@
         </div>
       </section>
 
-      <section id="slide-09" class="slide">
+      <section id="slide-10" class="slide">
         <div class="content">
           <div class="topline">
-            <span>08 / WHY NOT 6X?</span>
+            <span>09 / WHY NOT 6X?</span>
             <span>公式値との差分</span>
           </div>
           <h2>公式の “up to 6x” は、今回の条件そのものではない。</h2>
@@ -912,10 +1034,10 @@
         </div>
       </section>
 
-      <section id="slide-10" class="slide">
+      <section id="slide-11" class="slide">
         <div class="content">
           <div class="topline">
-            <span>09 / REPRODUCE</span>
+            <span>10 / REPRODUCE</span>
             <span>手元で再現するコマンド</span>
           </div>
           <h2>違いを見るなら、contrast 実験が一番わかりやすい。</h2>
@@ -928,10 +1050,10 @@
         </div>
       </section>
 
-      <section id="slide-11" class="slide">
+      <section id="slide-12" class="slide">
         <div class="content">
           <div class="topline">
-            <span>10 / TAKEAWAY</span>
+            <span>11 / TAKEAWAY</span>
             <span>次にやるなら</span>
           </div>
           <h2>速度差は “モデル名” ではなく、受理率と実行系で決まる。</h2>
@@ -1023,14 +1145,14 @@
 
         enter("#slide-01", 0);
         for (let i = 1; i < slides.length; i += 1) {
-          showSlide(i, i * 5 - 1.35);
+          showSlide(i, i * 5 - 1.75);
           enter(`#slide-${String(i + 1).padStart(2, "0")}`, i * 5);
         }
-        tl.to("#slide-11 .content", { opacity: 0, y: -18, duration: 0.58, ease: "power2.in" }, 54.1);
+        tl.to("#slide-12 .content", { opacity: 0, y: -18, duration: 0.58, ease: "power2.in" }, 59.1);
 
         window.__timelines["main"] = tl;
       } else {
-        window.__timelines["main"] = { duration: () => 55 };
+        window.__timelines["main"] = { duration: () => 60 };
       }
     </script>
   </body>

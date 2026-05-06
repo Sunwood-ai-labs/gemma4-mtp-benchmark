@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "npx --yes hyperframes@0.4.45 preview",
     "check": "npx --yes hyperframes@0.4.45 lint && npx --yes hyperframes@0.4.45 validate && npx --yes hyperframes@0.4.45 inspect",
-    "snapshot": "npx --yes hyperframes@0.4.45 snapshot --at 2.5,7.5,12.5,17.5,22.5,27.5,32.5,37.5,42.5,47.5,52.5",
+    "snapshot": "npx --yes hyperframes@0.4.45 snapshot --at 2.5,7.5,12.5,17.5,22.5,27.5,32.5,37.5,42.5,47.5,52.5,57.5",
     "render": "npx --yes hyperframes@0.4.45 render",
     "export:slides": "bash scripts/export-slides.sh"
   }
