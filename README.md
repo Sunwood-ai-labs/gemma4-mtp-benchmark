@@ -45,6 +45,22 @@ uv pip install -e '.[bench]'
 uv run gemma4-mtp-bench doctor
 ```
 
+## Interactive Chat
+
+To type your own prompts and feel LiteRT-LM MTP directly, use `chat`:
+
+```bash
+uv run gemma4-mtp-bench chat --model e4b --backend gpu --mode mtp
+```
+
+To compare the same prompt with MTP off and on in one session:
+
+```bash
+uv run gemma4-mtp-bench chat --model e4b --backend gpu --mode compare
+```
+
+Inside the chat, type `/bye`, `/exit`, `/quit`, or press `Ctrl-D` to stop.
+
 Run a quick E2B GPU comparison:
 
 ```bash

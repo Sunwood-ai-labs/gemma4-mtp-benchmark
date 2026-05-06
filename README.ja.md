@@ -45,6 +45,22 @@ uv pip install -e '.[bench]'
 uv run gemma4-mtp-bench doctor
 ```
 
+## 自分でプロンプトを打ってチャットする
+
+LiteRT-LM + MTP を普通に対話で触るなら `chat` を使います。
+
+```bash
+uv run gemma4-mtp-bench chat --model e4b --backend gpu --mode mtp
+```
+
+同じプロンプトを MTP なし/ありの両方へ投げて比べたいとき:
+
+```bash
+uv run gemma4-mtp-bench chat --model e4b --backend gpu --mode compare
+```
+
+終了は `/bye`、`/exit`、`/quit`、または `Ctrl-D` です。
+
 E2Bで軽く比較:
 
 ```bash

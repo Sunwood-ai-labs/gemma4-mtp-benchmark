@@ -145,6 +145,13 @@ uv pip install -e '.[bench]'
 uv run gemma4-mtp-bench run --model e2b --backend gpu --prompt-set quick</code></pre>
       </section>
 
+      <section>
+        <h2>Interactive Chat</h2>
+        <p>Type your own prompts with LiteRT-LM MTP enabled, or compare MTP off and on.</p>
+        <pre><code>uv run gemma4-mtp-bench chat --model e4b --backend gpu --mode mtp
+uv run gemma4-mtp-bench chat --model e4b --backend gpu --mode compare</code></pre>
+      </section>
+
       <section class="grid">
         <div class="card">
           <strong>E2B</strong>

@@ -9,9 +9,10 @@ import subprocess
 import sys
 import time
 from collections.abc import Iterable
+from contextlib import ExitStack
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Callable, Optional, TextIO
 
 from .models import MODELS, ModelSpec, get_model_spec
 from .prompts import get_prompts, list_prompt_sets
@@ -31,6 +32,13 @@ class RunRecord:
     estimated_tokens: float
     estimated_tokens_per_second: float
     preview: str
+
+
+@dataclass
+class ChatTurnStats:
+    seconds: float
+    output_chars: int
+    estimated_tokens: float
 
 
 def _run_command(args: list[str], timeout: int = 20) -> tuple[int, str]:
@@ -145,12 +153,57 @@ def collect_text(stream: Iterable[dict[str, Any]]) -> str:
     return "".join(parts)
 
 
+def stream_text(stream: Iterable[dict[str, Any]], out: TextIO) -> str:
+    parts = []
+    for chunk in stream:
+        for item in chunk.get("content", []):
+            if item.get("type") == "text":
+                text = item.get("text", "")
+                parts.append(text)
+                print(text, end="", file=out, flush=True)
+    return "".join(parts)
+
+
 def estimate_tokens(text: str) -> float:
     if not text:
         return 0.0
     ascii_count = sum(1 for char in text if ord(char) < 128)
     non_ascii_count = len(text) - ascii_count
     return ascii_count / 4.0 + non_ascii_count / 1.8
+
+
+def _configure_quiet_litert_logs() -> None:
+    os.environ.setdefault("GLOG_minloglevel", "2")
+    os.environ.setdefault("TF_CPP_MIN_LOG_LEVEL", "2")
+    os.environ.setdefault("ABSL_MIN_LOG_LEVEL", "2")
+
+
+def _import_litert_lm() -> Any:
+    try:
+        import litert_lm
+    except ImportError as exc:
+        raise RuntimeError(
+            "litert_lm is not installed. Install it with: python3 -m pip install -e '.[bench]'"
+        ) from exc
+
+    if hasattr(litert_lm, "set_min_log_severity") and hasattr(litert_lm, "LogSeverity"):
+        litert_lm.set_min_log_severity(litert_lm.LogSeverity.ERROR)
+    return litert_lm
+
+
+def _engine_kwargs(
+    litert_lm: Any,
+    backend: str,
+    enable_mtp: bool,
+    compiled_cache_dir: Optional[Path],
+) -> dict[str, Any]:
+    engine_kwargs = {
+        "backend": _backend_value(litert_lm, backend),
+        "enable_speculative_decoding": enable_mtp,
+    }
+    if compiled_cache_dir is not None:
+        engine_kwargs["cache_dir"] = str(compiled_cache_dir.expanduser())
+    return engine_kwargs
 
 
 def _run_single_engine(
@@ -166,12 +219,7 @@ def _run_single_engine(
     preview_chars: int,
     compiled_cache_dir: Optional[Path],
 ) -> list[RunRecord]:
-    engine_kwargs = {
-        "backend": _backend_value(litert_lm, backend),
-        "enable_speculative_decoding": enable_mtp,
-    }
-    if compiled_cache_dir is not None:
-        engine_kwargs["cache_dir"] = str(compiled_cache_dir.expanduser())
+    engine_kwargs = _engine_kwargs(litert_lm, backend, enable_mtp, compiled_cache_dir)
 
     load_start = time.perf_counter()
     with litert_lm.Engine(str(model_path), **engine_kwargs) as engine:
@@ -228,19 +276,8 @@ def run_benchmark(args: argparse.Namespace) -> int:
         print(json.dumps(payload, indent=2, ensure_ascii=False))
         return 0
 
-    os.environ.setdefault("GLOG_minloglevel", "2")
-    os.environ.setdefault("TF_CPP_MIN_LOG_LEVEL", "2")
-    os.environ.setdefault("ABSL_MIN_LOG_LEVEL", "2")
-
-    try:
-        import litert_lm
-    except ImportError as exc:
-        raise RuntimeError(
-            "litert_lm is not installed. Install it with: python3 -m pip install -e '.[bench]'"
-        ) from exc
-
-    if hasattr(litert_lm, "set_min_log_severity") and hasattr(litert_lm, "LogSeverity"):
-        litert_lm.set_min_log_severity(litert_lm.LogSeverity.ERROR)
+    _configure_quiet_litert_logs()
+    litert_lm = _import_litert_lm()
 
     model_path = resolve_model_path(model, args.model_path, args.hf_cache_dir)
     modes = [False, True] if args.mode == "both" else [args.mode == "mtp"]
@@ -282,6 +319,130 @@ def run_benchmark(args: argparse.Namespace) -> int:
         print(f"\nWrote {args.output}")
 
     print(render_summary(payload))
+    return 0
+
+
+def _chat_modes(mode: str) -> list[bool]:
+    if mode == "compare":
+        return [False, True]
+    return [mode == "mtp"]
+
+
+def format_chat_stats(stats_by_mode: dict[bool, ChatTurnStats]) -> str:
+    lines = []
+    if False in stats_by_mode:
+        stats = stats_by_mode[False]
+        tokens_per_second = stats.estimated_tokens / stats.seconds if stats.seconds else 0.0
+        lines.append(
+            f"baseline: {stats.seconds:.2f}s, "
+            f"{tokens_per_second:.1f} est tok/s, {stats.output_chars} chars"
+        )
+    if True in stats_by_mode:
+        stats = stats_by_mode[True]
+        tokens_per_second = stats.estimated_tokens / stats.seconds if stats.seconds else 0.0
+        lines.append(
+            f"mtp: {stats.seconds:.2f}s, "
+            f"{tokens_per_second:.1f} est tok/s, {stats.output_chars} chars"
+        )
+
+    off = stats_by_mode.get(False)
+    on = stats_by_mode.get(True)
+    if off and on:
+        off_tps = off.estimated_tokens / off.seconds if off.seconds else 0.0
+        on_tps = on.estimated_tokens / on.seconds if on.seconds else 0.0
+        if off_tps:
+            lines.append(f"estimated speed ratio: {on_tps / off_tps:.2f}x")
+
+    return "\n".join(lines)
+
+
+def _warm_up_engine(engine: Any, warmups: int) -> None:
+    for warmup_index in range(warmups):
+        with engine.create_conversation() as conversation:
+            collect_text(conversation.send_message_async(f"短くOKと返してください。#{warmup_index}"))
+
+
+def run_chat(
+    args: argparse.Namespace,
+    *,
+    input_func: Callable[[str], str] = input,
+    out: TextIO = sys.stdout,
+) -> int:
+    model = get_model_spec(args.model)
+
+    if args.dry_run:
+        payload = {
+            "dry_run": True,
+            "model": asdict(model),
+            "backend": args.backend,
+            "chat_mode": args.mode,
+            "warmups": args.warmups,
+            "environment": collect_environment(),
+        }
+        print(json.dumps(payload, indent=2, ensure_ascii=False), file=out)
+        return 0
+
+    _configure_quiet_litert_logs()
+    litert_lm = _import_litert_lm()
+    model_path = resolve_model_path(model, args.model_path, args.hf_cache_dir)
+    modes = _chat_modes(args.mode)
+
+    print(
+        f"LiteRT-LM chat: model={model.key} backend={args.backend} mode={args.mode}",
+        file=out,
+        flush=True,
+    )
+    print("Type /bye, /exit, /quit, or press Ctrl-D to stop.", file=out, flush=True)
+
+    with ExitStack() as stack:
+        conversations: dict[bool, Any] = {}
+        for enable_mtp in modes:
+            label = "mtp" if enable_mtp else "baseline"
+            print(f"\nLoading {label} engine...", file=out, flush=True)
+            engine = stack.enter_context(
+                litert_lm.Engine(
+                    str(model_path),
+                    **_engine_kwargs(litert_lm, args.backend, enable_mtp, args.compiled_cache_dir),
+                )
+            )
+            _warm_up_engine(engine, args.warmups)
+            conversations[enable_mtp] = stack.enter_context(engine.create_conversation())
+
+        while True:
+            try:
+                prompt = input_func("\nYou > ")
+            except EOFError:
+                print("", file=out)
+                break
+
+            prompt = prompt.strip()
+            if not prompt:
+                continue
+            if prompt.lower() in {"/bye", "/exit", "/quit"}:
+                break
+
+            turn_stats: dict[bool, ChatTurnStats] = {}
+            for enable_mtp in modes:
+                if args.mode == "compare":
+                    label = "MTP on" if enable_mtp else "baseline / MTP off"
+                    print(f"\n[{label}]", file=out, flush=True)
+                else:
+                    label = "Gemma MTP" if enable_mtp else "Gemma baseline"
+                    print(f"\n{label} > ", end="", file=out, flush=True)
+
+                start = time.perf_counter()
+                text = stream_text(conversations[enable_mtp].send_message_async(prompt), out)
+                elapsed = time.perf_counter() - start
+                print("", file=out)
+
+                turn_stats[enable_mtp] = ChatTurnStats(
+                    seconds=elapsed,
+                    output_chars=len(text),
+                    estimated_tokens=estimate_tokens(text),
+                )
+
+            print("\n" + format_chat_stats(turn_stats), file=out, flush=True)
+
     return 0
 
 
@@ -389,6 +550,20 @@ def build_parser() -> argparse.ArgumentParser:
         help="Validate configuration without loading a model.",
     )
 
+    chat = subparsers.add_parser("chat", help="Chat interactively with LiteRT-LM MTP on/off.")
+    chat.add_argument("--model", choices=sorted(MODELS), default="e2b")
+    chat.add_argument("--model-path", type=Path)
+    chat.add_argument("--hf-cache-dir", type=Path)
+    chat.add_argument("--compiled-cache-dir", type=Path)
+    chat.add_argument("--backend", choices=["cpu", "gpu"], default="gpu")
+    chat.add_argument("--mode", choices=["baseline", "mtp", "compare"], default="mtp")
+    chat.add_argument("--warmups", type=int, default=1)
+    chat.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Validate chat configuration without loading a model.",
+    )
+
     report = subparsers.add_parser("report", help="Render a Markdown summary from a JSON result.")
     report.add_argument("input", type=Path)
     report.add_argument("--output", type=Path)
@@ -405,6 +580,8 @@ def main(argv: Optional[list[str]] = None) -> int:
             return download_model(args)
         if args.command == "run":
             return run_benchmark(args)
+        if args.command == "chat":
+            return run_chat(args)
         if args.command == "report":
             return render_report(args)
     except Exception as exc:
