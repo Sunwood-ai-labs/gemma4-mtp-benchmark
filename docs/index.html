@@ -109,6 +109,27 @@
         border-radius: 8px;
         background: #101418;
       }
+
+      .slide-gallery {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 14px;
+        margin-top: 18px;
+      }
+
+      .slide-gallery a {
+        display: block;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        overflow: hidden;
+        background: var(--panel);
+      }
+
+      .slide-gallery img {
+        display: block;
+        width: 100%;
+        height: auto;
+      }
     </style>
   </head>
   <body>
@@ -202,6 +223,28 @@ uv run gemma4-mtp-bench chat --model e4b --backend gpu --mode compare</code></pr
           accepted.
         </p>
         <pre><code>scripts/run-dflash-contrast.sh</code></pre>
+      </section>
+
+      <section>
+        <h2>Japanese Experiment Slides</h2>
+        <p>
+          A 10-slide Japanese HyperFrames deck summarizes the Gemma 4 LiteRT-LM MTP results,
+          DFlash contrast experiment, the long mt-bench slowdown, and why the local run did
+          not reproduce an “up to 6x” speedup.
+        </p>
+        <video src="assets/dflash-gemma4-slides/dflash-gemma4-slides.mp4" controls preload="metadata"></video>
+        <div class="slide-gallery">
+          <a href="assets/dflash-gemma4-slides/slide-01.png"><img src="assets/dflash-gemma4-slides/slide-01.png" alt="Slide 01" /></a>
+          <a href="assets/dflash-gemma4-slides/slide-02.png"><img src="assets/dflash-gemma4-slides/slide-02.png" alt="Slide 02" /></a>
+          <a href="assets/dflash-gemma4-slides/slide-03.png"><img src="assets/dflash-gemma4-slides/slide-03.png" alt="Slide 03" /></a>
+          <a href="assets/dflash-gemma4-slides/slide-04.png"><img src="assets/dflash-gemma4-slides/slide-04.png" alt="Slide 04" /></a>
+          <a href="assets/dflash-gemma4-slides/slide-05.png"><img src="assets/dflash-gemma4-slides/slide-05.png" alt="Slide 05" /></a>
+          <a href="assets/dflash-gemma4-slides/slide-06.png"><img src="assets/dflash-gemma4-slides/slide-06.png" alt="Slide 06" /></a>
+          <a href="assets/dflash-gemma4-slides/slide-07.png"><img src="assets/dflash-gemma4-slides/slide-07.png" alt="Slide 07" /></a>
+          <a href="assets/dflash-gemma4-slides/slide-08.png"><img src="assets/dflash-gemma4-slides/slide-08.png" alt="Slide 08" /></a>
+          <a href="assets/dflash-gemma4-slides/slide-09.png"><img src="assets/dflash-gemma4-slides/slide-09.png" alt="Slide 09" /></a>
+          <a href="assets/dflash-gemma4-slides/slide-10.png"><img src="assets/dflash-gemma4-slides/slide-10.png" alt="Slide 10" /></a>
+        </div>
       </section>
     </main>
   </body>
