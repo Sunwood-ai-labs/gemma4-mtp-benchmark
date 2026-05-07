@@ -7,7 +7,7 @@ OUT_DIR="${OUT_DIR:-"${ROOT_DIR}/docs/assets/dflash-gemma4-slides"}"
 
 mkdir -p "${OUT_DIR}"
 
-for slide in $(seq 1 12); do
+for slide in $(seq 1 13); do
   id="$(printf "%02d" "${slide}")"
   url="file://${PROJECT_DIR}/index.html?slide=${slide}"
   out="${OUT_DIR}/slide-${id}.png"
