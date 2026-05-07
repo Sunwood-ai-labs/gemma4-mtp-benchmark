@@ -139,6 +139,18 @@ scripts/run-dflash-contrast.sh
 
 It keeps the model fixed and varies only the prompt style. On this M1 Max, Qwen3.5-4B DFlash measured `1.86x` on a predictable math prompt, `1.44x` on structured JSON, and `0.93x` on open-ended creative writing. The visible driver was mean accepted draft length: `6.59`, `5.14`, then `3.62`. See [the DFlash contrast note](benchmarks/2026-05-06-dflash-contrast-m1-max.md).
 
+For coding-only prompts, run:
+
+```bash
+scripts/run-dflash-coding-cases.sh
+```
+
+This makes the important nuance visible: coding is not automatically faster, but
+constrained coding formats often are. On this M1 Max, argparse CLI scaffolding
+measured `1.27x`, pytest test generation `1.24x`, and a unified diff fix `1.21x`.
+An open-ended architecture design prompt slowed to `0.82x`. See
+[the DFlash coding cases note](benchmarks/2026-05-07-dflash-coding-cases-m1-max.md).
+
 Render a Markdown report:
 
 ```bash

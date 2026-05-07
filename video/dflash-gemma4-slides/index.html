@@ -330,6 +330,15 @@
         text-align: right;
       }
 
+      .result-table.compact {
+        font-size: 22px;
+      }
+
+      .result-table.compact th,
+      .result-table.compact td {
+        padding: 15px 16px;
+      }
+
       .good {
         color: #7ce7df;
       }
@@ -571,6 +580,13 @@
         gap: 22px;
       }
 
+      .coding-grid {
+        display: grid;
+        grid-template-columns: 1.15fr 0.85fr;
+        gap: 28px;
+        align-items: stretch;
+      }
+
       .contrast-card {
         min-height: 430px;
         padding: 26px;
@@ -682,7 +698,7 @@
         id="root"
         data-composition-id="main"
         data-start="0"
-        data-duration="65"
+        data-duration="70"
         data-width="1920"
         data-height="1080"
       >
@@ -940,7 +956,56 @@
       <section id="slide-08" class="slide">
         <div class="content">
           <div class="topline">
-            <span>07 / DFLASH CONTRAST</span>
+            <span>07 / CODING CASES</span>
+            <span>DFlash coding-only experiment</span>
+          </div>
+          <h2 class="wide-title">Codingでも、型が決まるほど速い。</h2>
+          <div class="coding-grid">
+            <div class="panel pad">
+              <div class="bench-title">Qwen3.5-4B + DFlash · 320 tokens</div>
+              <table class="result-table compact">
+                <tr><th>case</th><th>speedup</th><th>accepted</th><th>reading</th></tr>
+                <tr><td>cli_argparse</td><td class="good">1.27x</td><td>5.10</td><td>定型CLI</td></tr>
+                <tr><td>pytest_tests</td><td class="good">1.24x</td><td>4.57</td><td>テスト列挙</td></tr>
+                <tr><td>unified_diff_fix</td><td class="good">1.21x</td><td>5.18</td><td>patch形式</td></tr>
+                <tr><td>open_architecture</td><td class="bad">0.82x</td><td>3.82</td><td>自由設計</td></tr>
+              </table>
+              <div class="bench-note">2026-05-07 実測。CLI生成は 26.44 → 33.50 tok/s、pytest は 28.76 → 35.63 tok/s、diff は 28.53 → 34.51 tok/s。</div>
+            </div>
+            <div class="panel pad">
+              <div class="bar-list">
+                <div class="bar-row">
+                  <div class="bar-name">CLI</div>
+                  <div class="track"><div class="fill" style="--w: 100%"></div></div>
+                  <div class="bar-value good">1.27x</div>
+                </div>
+                <div class="bar-row">
+                  <div class="bar-name">pytest</div>
+                  <div class="track"><div class="fill" style="--w: 98%"></div></div>
+                  <div class="bar-value good">1.24x</div>
+                </div>
+                <div class="bar-row">
+                  <div class="bar-name">diff</div>
+                  <div class="track"><div class="fill" style="--w: 95%"></div></div>
+                  <div class="bar-value good">1.21x</div>
+                </div>
+                <div class="bar-row">
+                  <div class="bar-name">design</div>
+                  <div class="track"><div class="fill slow" style="--w: 65%"></div></div>
+                  <div class="bar-value bad">0.82x</div>
+                </div>
+              </div>
+              <div class="command small">scripts/run-dflash-coding-cases.sh</div>
+            </div>
+          </div>
+          <div class="callout">答えは「codingなら常に速い」ではない。argparse、pytest、unified diff のように形が決まると draft が当たり、設計方針まで自由に書かせると accepted が落ちる。</div>
+        </div>
+      </section>
+
+      <section id="slide-09" class="slide">
+        <div class="content">
+          <div class="topline">
+            <span>08 / DFLASH CONTRAST</span>
             <span>同じモデルでプロンプトだけ変える</span>
           </div>
           <h2>DFlash は “何を書くか” で速度が変わる。</h2>
@@ -984,10 +1049,10 @@
         </div>
       </section>
 
-      <section id="slide-09" class="slide">
+      <section id="slide-10" class="slide">
         <div class="content">
           <div class="topline">
-            <span>08 / DFLASH CONTRAST DETAIL</span>
+            <span>09 / DFLASH CONTRAST DETAIL</span>
             <span>Qwen3.5-4B · prompt-only comparison</span>
           </div>
           <h2 class="wide-title">何が効いて、何が効かないかが見える実験。</h2>
@@ -1049,10 +1114,10 @@
         </div>
       </section>
 
-      <section id="slide-10" class="slide">
+      <section id="slide-11" class="slide">
         <div class="content">
           <div class="topline">
-            <span>09 / LONG MT-BENCH</span>
+            <span>10 / LONG MT-BENCH</span>
             <span>max_new_tokens=512</span>
           </div>
           <h2 class="wide-title">長文でも、<br />DFlash はこの条件では速くならなかった。</h2>
@@ -1096,10 +1161,10 @@
         </div>
       </section>
 
-      <section id="slide-11" class="slide">
+      <section id="slide-12" class="slide">
         <div class="content">
           <div class="topline">
-            <span>10 / WHY NOT 6X?</span>
+            <span>11 / WHY NOT 6X?</span>
             <span>公式値との差分</span>
           </div>
           <h2>公式の “up to 6x” は、今回の条件そのものではない。</h2>
@@ -1122,10 +1187,10 @@
         </div>
       </section>
 
-      <section id="slide-12" class="slide">
+      <section id="slide-13" class="slide">
         <div class="content">
           <div class="topline">
-            <span>11 / REPRODUCE</span>
+            <span>12 / REPRODUCE</span>
             <span>手元で再現するコマンド</span>
           </div>
           <h2>違いを見るなら、contrast 実験が一番わかりやすい。</h2>
@@ -1138,10 +1203,10 @@
         </div>
       </section>
 
-      <section id="slide-13" class="slide">
+      <section id="slide-14" class="slide">
         <div class="content">
           <div class="topline">
-            <span>12 / TAKEAWAY</span>
+            <span>13 / TAKEAWAY</span>
             <span>次にやるなら</span>
           </div>
           <h2>速度差は “モデル名” ではなく、受理率と実行系で決まる。</h2>
@@ -1236,11 +1301,11 @@
           showSlide(i, i * 5 - 1.75);
           enter(`#slide-${String(i + 1).padStart(2, "0")}`, i * 5);
         }
-        tl.to("#slide-13 .content", { opacity: 0, y: -18, duration: 0.58, ease: "power2.in" }, 64.1);
+        tl.to("#slide-14 .content", { opacity: 0, y: -18, duration: 0.58, ease: "power2.in" }, 69.1);
 
         window.__timelines["main"] = tl;
       } else {
-        window.__timelines["main"] = { duration: () => 65 };
+        window.__timelines["main"] = { duration: () => 70 };
       }
     </script>
   </body>

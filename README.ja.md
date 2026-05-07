@@ -139,6 +139,14 @@ scripts/run-dflash-contrast.sh
 
 モデルを Qwen3.5-4B に固定してプロンプトだけ変えたところ、この M1 Max では予測しやすい数学プロンプトが `1.86x`、構造化JSONが `1.44x`、自由な創作文が `0.93x` でした。差を作っていたのは平均 accepted draft length で、順に `6.59`、`5.14`、`3.62` です。詳細は [DFlash contrast note](benchmarks/2026-05-06-dflash-contrast-m1-max.md) に残しました。
 
+Coding だけを分解して見るなら、次を実行します。
+
+```bash
+scripts/run-dflash-coding-cases.sh
+```
+
+ここで見えるのは、「codingなら常に速い」ではなく「型が決まったcodingが速い」という点です。この M1 Max では argparse CLI 生成が `1.27x`、pytest生成が `1.24x`、unified diff修正が `1.21x` でした。一方、自由度の高い architecture 設計は `0.82x` に落ちました。詳細は [DFlash coding cases note](benchmarks/2026-05-07-dflash-coding-cases-m1-max.md) に残しました。
+
 結果をMarkdownにします。
 
 ```bash
